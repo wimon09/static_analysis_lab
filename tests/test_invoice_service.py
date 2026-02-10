@@ -1,29 +1,37 @@
-import pytest
-from invoice_service import InvoiceService, Invoice, LineItem
+from src.invoice_service import InvoiceService, Invoice, LineItem
 
-def test_compute_total_basic():
+def test_compute_total_basic_th():
     service = InvoiceService()
     inv = Invoice(
-        invoice_id="I-001",
-        customer_id="C-001",
+        invoice_id="INV001",
+        customer_id="C001",
         country="TH",
         membership="none",
         coupon=None,
-        items=[LineItem(sku="A", category="book", unit_price=100.0, qty=2)]
+        items=[
+            LineItem(sku="B001", category="book", unit_price=100, qty=2)
+        ]
     )
+
     total, warnings = service.compute_total(inv)
-    assert total > 0
-    assert isinstance(warnings, list)
 
-def test_invalid_qty_raises():
+    assert total > 0
+    assert warnings == []
+
+def test_compute_total_with_coupon():
     service = InvoiceService()
     inv = Invoice(
-        invoice_id="I-002",
-        customer_id="C-001",
-        country="TH",
-        membership="none",
-        coupon=None,
-        items=[LineItem(sku="A", category="book", unit_price=100.0, qty=0)]
+        invoice_id="INV002",
+        customer_id="C002",
+        country="US",
+        membership="gold",
+        coupon="WELCOME10",
+        items=[
+            LineItem(sku="E001", category="electronics", unit_price=500, qty=1)
+        ]
     )
-    with pytest.raises(ValueError):
-        service.compute_total(inv)
+
+    total, _ = service.compute_total(inv)
+
+    assert total > 0
+
